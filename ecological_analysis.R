@@ -143,3 +143,70 @@ NMDS_Figure <- ggplot(nmds_df, aes(x = NMDS1, y = NMDS2, color = Group, shape = 
     guides(color = guide_legend(title = "Sponge Taxonomic Family", override.aes = list(size = 3), order = 1))
 
 ggsave("NMDS_Figure.pdf", plot = NMDS_Figure, width = 9, height = 6, units = "in")
+#Figure S1
+
+nmds_result <- metaMDS(community_data, distance = "bray", autotransform = FALSE) 
+nmds_df <- data.frame(NMDS1 = nmds_result$points[, 1], NMDS2 = nmds_result$points[, 2], 
+                      Sample = data$Sample, Group = data$Group, Location = data$Location, Letter = data$Letter)
+
+
+# Run NMDS without Phloeodictyidae outlier
+
+community_data #re 
+
+nmds_result <- metaMDS(community_data_noP, distance = "bray", autotransform = FALSE) 
+nmds_df <- data.frame(NMDS1 = nmds_result$points[, 1], NMDS2 = nmds_result$points[, 2], 
+                      Sample = data$Sample, Group = data$Group, Location = data$Location, Letter = data$Letter)
+
+NMDS_Figure <- ggplot(nmds_df, aes(x = NMDS1, y = NMDS2, color = Group, shape = Location, label = Letter)) + 
+    geom_point(aes(size = Location), show.legend = TRUE) +  
+    geom_text(nudge_y = 0.025, size = 3)  +  # adjust position of letter labels next to point
+    labs(x = "NMDS1", y = "NMDS2") +
+    scale_color_manual(values = c("Farreidae" = "#E69F00", "Hyalonematidae" = "#56B4E9", 
+                                  "Cladorhizidae" = "#009E73", "Euplectellidae" = "#D55E00", 
+                                  "Euretidae" = "#005A8E")) +  
+    scale_shape_manual(values = c("Desecheo Ridge" = 15, "Esperanza Ridge" = 17, 
+                                  "Whiting Seamount" = 18, "Ridge SW of Vieques" = 19)) +  
+    scale_size_manual(values = c("Desecheo Ridge" = 4, "Esperanza Ridge" = 4, 
+                                 "Whiting Seamount" = 5, "Ridge SW of Vieques" = 4)) +  # make the diamond a little larger
+    theme_bw() +
+    theme(legend.position = "right", 
+          axis.title.x = element_text(size = 12),
+          axis.title.y = element_text(size = 12),
+          axis.text.x = element_text(size = 10),   
+          axis.text.y = element_text(size = 10)) + 
+    guides(color = guide_legend(title = "Sponge Taxonomic Family", override.aes = list(size = 3), order = 1))
+
+ggsave("NMDS_Figure.pdf", plot = NMDS_Figure, width = 9, height = 6, units = "in")
+#Figure 4
+
+
+## Simpsons Diversity Figure
+
+diversity_plot <- ggplot(diversity_summary, aes(x = Group, y = Simpson, fill = Group)) + 
+    geom_boxplot(alpha = 0.3) + 
+    geom_point(size = 3, aes(color = Group), position = position_dodge(width = 0.75), na.rm = TRUE) +  
+    labs(
+        x = "Sponge Taxonomic Family",
+        y = "Simpson's Diversity Index") +
+    theme_bw() +
+    scale_fill_manual(values = c("Farreidae" = "#E69F00", 
+                                 "Hyalonematidae" = "#56B4E9", 
+                                 "Cladorhizidae" = "#009E73", 
+                                 "Euplectellidae" = "#D55E00", 
+                                 "Phloeodictyidae" = "#CC79A7", 
+                                 "Euretidae" = "#005A8E")) +  
+    scale_color_manual(values = c("Farreidae" = "#E69F00", 
+                                  "Hyalonematidae" = "#56B4E9", 
+                                  "Cladorhizidae" = "#009E73", 
+                                  "Euplectellidae" = "#D55E00", 
+                                  "Phloeodictyidae" = "#CC79A7", 
+                                  "Euretidae" = "#005A8E")) +  
+    theme(legend.position = "none", 
+          axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
+          axis.text.y = element_text(size = 12),
+          axis.title.x = element_text(size = 13),  
+          axis.title.y = element_text(size = 13, margin = margin(r = 10)))  
+
+ggsave("Simpson_Diversity_BoxPlot.pdf", plot = diversity_plot, width = 8, height = 6, units = "in")
+#Figure 5
