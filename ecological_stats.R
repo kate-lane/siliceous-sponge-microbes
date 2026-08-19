@@ -11,21 +11,15 @@ data <- read.csv("Glass_Sponges_Archaeal_Bacterial_Phylum_Community_Composition_
 # Clean Data
 community_data <- data[, !(names(data) %in% c("Dive", "Location", "Sample", "Smithsonian", "Letter", "Genus", "Family", "Group"))]
 community_data[is.na(community_data)] <- 0   #Replace NaN values with 0
-
 data$Location <- as.factor(data$Location)
 data$Group <- as.factor(data$Group)
-
-
 
 ## Individual PERMANOVAs: Location and Sponge Family
 
 # Sponge Family Taxa 
 adonis2(community_data~data$Group,data=data,permutations = 999,method="bray")
-
 # Location of Specimen
 adonis2(community_data~data$Location,data=data,permutations = 999,method="bray")
-
-
 
 ## Two-way crossed PERMANOVA
 
@@ -44,7 +38,6 @@ adonis2(community_data ~ Location:Group, data = group_loc, permutations = 999, m
 
 ## Pairwise post hoc test
 
-# // Which groups differ? 
 pairwise.adonis(community_data,data$Group) #Because Group is significant, while Location is not
 
 #test pairwise combinations of group and Location
@@ -54,10 +47,8 @@ pairwise.adonis(community_data, factors = interaction(data$Group, data$Location)
 
 ## Simper analysis
 
-# // Which microbes drive the differences between sponge species?
 simper(community_data,data$Group,permutations=999,parellel=1)
-
-# Also checked for homogeneity of variance using bray-curtis dissimilarity matrix:
+# Check for homogeneity of variance using bray-curtis dissimilarity matrix:
 bc_dist <- vegdist(community_data, method = "bray")
 
 dispersion_group <- betadisper(bc_dist, data$Group)
@@ -65,8 +56,6 @@ permutest(dispersion_group)
 
 dispersion_location <- betadisper(bc_dist, data$Location)
 permutest(dispersion_location)
-#P values are both greater than 0, so dispersion is homogenous
-
 
 ####################################################
 
@@ -90,7 +79,7 @@ qqnorm(residuals(diversity_model))
 qqline(residuals(diversity_model), col = "red")
 
 # Levene's test for homogeneity of variance
-# // Assumption of homogeneity of variances is met; p is greater than .05 so proceed with anova
+# Assumption of homogeneity of variances is met; p is greater than .05 so proceed with anova
 leveneTest(Simpson ~ Group * Location, data = diversity_summary)
 
 # Simpson Index data is univariate so using aov() instead of adonis because it isn't community data 
@@ -98,11 +87,10 @@ anova_test<-aov(Simpson ~ Group + Location + Group*Location, data = diversity_su
 summary(anova_test)
 
 # Post-hoc test 
-# // Which groups differ? 
 TukeyHSD(anova_test)
 
-####################################################
 
+####################################################
 
 
 ## PERMANOVAs on sponge families collected at multiple sites
@@ -115,18 +103,43 @@ multi_site_families <- data %>%
   filter(n_sites > 1) %>%
   pull(Group)
 
-
 # One-way PERMANOVA for Location within each 'multi-site' family
 
 for (family in multi_site_families) {
   cat("PERMANOVA for", family)
-  
-  # Subset metadata and community data
-  subset_meta <- data[data$Group == family, ]
+  subset_meta <- data[data$Group == family, ] # Subset data
   subset_comm <- community_data[data$Group == family, ]
-  
-  # Run PERMANOVA
   permanova_results <- adonis2(subset_comm ~ Location, data = subset_meta, permutations = 999, method = "bray")
   print(permanova_results)
-
 }
+
+
+####################################################
+
+
+# NMDS
+
+nmds_result <- metaMDS(community_data, distance = "bray", autotransform = FALSE) 
+nmds_df <- data.frame(NMDS1 = nmds_result$points[, 1], NMDS2 = nmds_result$points[, 2], 
+                      Sample = data$Sample, Group = data$Group, Location = data$Location, Letter = data$Letter)
+
+NMDS_Figure <- ggplot(nmds_df, aes(x = NMDS1, y = NMDS2, color = Group, shape = Location, label = Letter)) + 
+    geom_point(aes(size = Location), show.legend = TRUE) +  
+    geom_text(nudge_y = 0.025, size = 3)  +  # adjust position of letter labels next to point
+    labs(x = "NMDS1", y = "NMDS2") +
+    scale_color_manual(values = c("Farreidae" = "#E69F00", "Hyalonematidae" = "#56B4E9", 
+                                  "Cladorhizidae" = "#009E73", "Euplectellidae" = "#D55E00", 
+                                  "Phloeodictyidae" = "#CC79A7", "Euretidae" = "#005A8E")) +  
+    scale_shape_manual(values = c("Desecheo Ridge" = 15, "Esperanza Ridge" = 17, 
+                                  "Whiting Seamount" = 18, "Ridge SW of Vieques" = 19)) +  
+    scale_size_manual(values = c("Desecheo Ridge" = 4, "Esperanza Ridge" = 4, 
+                                 "Whiting Seamount" = 5, "Ridge SW of Vieques" = 4)) +  # make the diamond a little larger
+    theme_bw() +
+    theme(legend.position = "right", 
+          axis.title.x = element_text(size = 12),
+          axis.title.y = element_text(size = 12),
+          axis.text.x = element_text(size = 10),   
+          axis.text.y = element_text(size = 10)) + 
+    guides(color = guide_legend(title = "Sponge Taxonomic Family", override.aes = list(size = 3), order = 1))
+
+ggsave("NMDS_Figure.pdf", plot = NMDS_Figure, width = 9, height = 6, units = "in")
