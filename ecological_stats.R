@@ -5,7 +5,7 @@ library(pairwiseAdonis)
 library(tidyr)
 library(car)
 
-setwd('/Users/katelane/MIT Dropbox/Kate Lane/posiedon/NMDS')
+# setwd('')
 data <- read.csv("Glass_Sponges_Archaeal_Bacterial_Phylum_Community_Composition_COVERAGE.csv")
 
 # Clean Data
