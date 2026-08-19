@@ -145,20 +145,15 @@ NMDS_Figure <- ggplot(nmds_df, aes(x = NMDS1, y = NMDS2, color = Group, shape = 
 ggsave("NMDS_Figure.pdf", plot = NMDS_Figure, width = 9, height = 6, units = "in")
 #Figure S1
 
-nmds_result <- metaMDS(community_data, distance = "bray", autotransform = FALSE) 
-nmds_df <- data.frame(NMDS1 = nmds_result$points[, 1], NMDS2 = nmds_result$points[, 2], 
-                      Sample = data$Sample, Group = data$Group, Location = data$Location, Letter = data$Letter)
-
-
 # Run NMDS without Phloeodictyidae outlier
 
-community_data #re 
-
+data_noP <- data[data$Group != "Phloeodictyidae",]
+community_data_noP <- community_data[community_data$Group !=  "Phloeodictyidae",]
 nmds_result <- metaMDS(community_data_noP, distance = "bray", autotransform = FALSE) 
 nmds_df <- data.frame(NMDS1 = nmds_result$points[, 1], NMDS2 = nmds_result$points[, 2], 
-                      Sample = data$Sample, Group = data$Group, Location = data$Location, Letter = data$Letter)
+                      Sample = data_noP$Sample, Group = data_noP$Group, Location = data_noP$Location, Letter = data_noP$Letter)
 
-NMDS_Figure <- ggplot(nmds_df, aes(x = NMDS1, y = NMDS2, color = Group, shape = Location, label = Letter)) + 
+NMDS_Figure_noP <- ggplot(nmds_df, aes(x = NMDS1, y = NMDS2, color = Group, shape = Location, label = Letter)) + 
     geom_point(aes(size = Location), show.legend = TRUE) +  
     geom_text(nudge_y = 0.025, size = 3)  +  # adjust position of letter labels next to point
     labs(x = "NMDS1", y = "NMDS2") +
@@ -177,7 +172,7 @@ NMDS_Figure <- ggplot(nmds_df, aes(x = NMDS1, y = NMDS2, color = Group, shape = 
           axis.text.y = element_text(size = 10)) + 
     guides(color = guide_legend(title = "Sponge Taxonomic Family", override.aes = list(size = 3), order = 1))
 
-ggsave("NMDS_Figure.pdf", plot = NMDS_Figure, width = 9, height = 6, units = "in")
+ggsave("NMDS_Figure_noP.pdf", plot = NMDS_Figure_noP, width = 9, height = 6, units = "in")
 #Figure 4
 
 
