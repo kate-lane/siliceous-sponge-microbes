@@ -37,7 +37,7 @@ checkm2 predict --threads 30 --input /assembly/${i}_megahit_min1000/bins_dir/  -
 coverm genome -b /assembly/${i}_megahit_min1000/aln-pe.sorted.bam --genome-fasta-directory /assembly/${i}_megahit_min1000/bins_dir/filtered_bins/renamed_bins -x fa --methods mean relative_abundance
 
 ## Taxonomic Assignment GTDBTK
-gtdbtk classify_wf --genome_dir /proj/hansel-lab/klane/baltic_2024_10_05/assembly/${i}_megahit_min1000/bins_dir/ --out_dir /proj/hansel-lab/klane/baltic_2024_10_05/gtdbtk/${i}_gtdbtk -x fa
+gtdbtk classify_wf --genome_dir /assembly/${i}_megahit_min1000/bins_dir/ --out_dir /gtdbtk/${i}_gtdbtk -x fa
 
 ## METABOLIC-G
 perl METABOLIC-G.pl -in-gn /METABOLIC/${i}_bins -o /METABOLIC/${i}_metabolic-G
