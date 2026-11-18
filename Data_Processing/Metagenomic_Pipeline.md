@@ -5,7 +5,7 @@ fastqc *gz
 
 bbduk.sh -Xmx1g in1=/raw.d/${i}.1.fastq.gz in2=/raw.d/${i}.2.fastq.gz out1=/raw.d/${i}_bbduk.1.fastq.gz out2=/raw.d/${i}_bbduk.2.fastq.gz minlen=50 qtrim=rl trimq=10 ktrim=r k=25 mink=8 ref=/home/katherine.lane/references/adapters.fa hdist=1 stats=/raw.d/${i}_bbduk.log
 
-'fastqc *bbduk*gz'
+fastqc \*bbduk\*gz
 
 ## Assembly
 megahit -1 /raw.d/${i}_bbduk.1.fastq.gz -2 /raw.d/${i}_bbduk.2.fastq.gz -o /assembly/${i}_megahit
